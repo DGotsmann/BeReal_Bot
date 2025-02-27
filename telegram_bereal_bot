@@ -1,0 +1,40 @@
+import random
+import asyncio
+import schedule
+from telegram.ext import Application
+
+TOKEN = "7897872563:AAG6h-O8_Ewwcn_fluAEFl9iLaDElZIpuoI" # Your bot token
+CHAT_ID = -1002499415062  # Your group chat ID
+
+async def send_message(app: Application):
+    """Sends a message to the group chat."""
+    await app.bot.send_message(chat_id=CHAT_ID, text="Time to be real! \nWo bisch? Was machsch? \nSchick es Foti!")
+    print("Message sent!")
+
+def schedule_random_time(app: Application):
+    """Schedules the message at a new random time each day."""
+    hour = random.randint(8, 22)  # Between 8 AM and 10 PM
+    minute = random.randint(0, 59)
+    hour = 16
+    minute = 31
+    schedule.clear()  # Clear any previous schedules
+    schedule.every().day.at(f"{hour:02d}:{minute:02d}").do(
+        lambda: asyncio.run_coroutine_threadsafe(send_message(app), asyncio.get_running_loop())
+    )
+    schedule.every().day.at("00:00").do(lambda: schedule_random_time(app))  # Schedule the next message
+    print(f"✅ Scheduled message at {hour:02d}:{minute:02d} today.")
+
+async def main():
+
+    app = Application.builder().token(TOKEN).build()
+
+    # Schedule the first message
+    schedule_random_time(app)
+    
+    while True:
+        schedule.run_pending()
+        await asyncio.sleep(60)
+
+if __name__ == "__main__":
+    #asyncio.run(send_message(Application.builder().token(TOKEN).build()))
+    asyncio.run(main())
