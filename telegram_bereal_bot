@@ -1,4 +1,5 @@
 import random
+import datetime
 import asyncio
 import schedule
 from telegram.ext import Application
@@ -13,10 +14,8 @@ async def send_message(app: Application):
 
 def schedule_random_time(app: Application):
     """Schedules the message at a new random time each day."""
-    hour = random.randint(8, 22)  # Between 8 AM and 10 PM
+    hour = random.randint(7, 21)  # Between 8 AM and 10 PM, this is in GMT!!! I'll fix it later
     minute = random.randint(0, 59)
-    hour = 16
-    minute = 31
     schedule.clear()  # Clear any previous schedules
     schedule.every().day.at(f"{hour:02d}:{minute:02d}").do(
         lambda: asyncio.run_coroutine_threadsafe(send_message(app), asyncio.get_running_loop())
@@ -30,9 +29,12 @@ async def main():
 
     # Schedule the first message
     schedule_random_time(app)
-    
+
     while True:
         schedule.run_pending()
+        job = schedule.get_jobs()[0]
+        time_remaining = job.next_run - datetime.datetime.now()
+        print(f"Time until next job: {time_remaining}") # Keep-alive message
         await asyncio.sleep(60)
 
 if __name__ == "__main__":
