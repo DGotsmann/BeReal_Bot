@@ -1,0 +1,9 @@
+# Ignore log files
+
+
+# Ignore all files in the temp folder
+.vscode/*
+
+# Ignore a specific file
+telegram_bot_test.py
+test.py
